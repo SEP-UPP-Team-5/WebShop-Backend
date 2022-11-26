@@ -26,8 +26,10 @@ public class User {
     private Date dateOfBirth;
     private Address address;
 
+    private Role role;
+
     public User(String id, String username, String name, String email, String telephoneNo,
-                Gender gender, Date dateOfBirth, Address address) {
+                Gender gender, Date dateOfBirth, Address address, Role role) {
         this.id = id;
         this.username = username;
         this.name = name;
@@ -36,10 +38,11 @@ public class User {
         this.gender = gender;
         this.dateOfBirth = dateOfBirth;
         this.address = address;
+        this.role = role;
     }
 
     public User(String id, String username, String password, String name, String email, String telephoneNo,
-                Gender gender, Date dateOfBirth, Address address) {
+                Gender gender, Date dateOfBirth, Address address, Role role) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -49,5 +52,6 @@ public class User {
         this.gender = gender;
         this.dateOfBirth = dateOfBirth;
         this.address = address;
+        this.role = role;
     }
 }
