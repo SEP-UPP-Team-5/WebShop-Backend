@@ -1,11 +1,14 @@
 package com.example.webshop.dto;
 
+import com.example.webshop.model.Product;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import java.util.Date;
+import java.util.List;
+
 @Getter
 @Setter
 public class UserDto {
@@ -50,6 +53,6 @@ public class UserDto {
         this.streetNumber = streetNumber;
         this.city = city;
         this.postalCode = postalCode;
-        this.role=role;
+        this.role = role;
     }
 }
