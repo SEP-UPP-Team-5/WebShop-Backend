@@ -11,7 +11,7 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AddUserToDto {
+public class AddUserDto {
 
     private String id;
     @NotEmpty(message = "Username cannot be null or empty!")
@@ -36,9 +36,11 @@ public class AddUserToDto {
     private String city;
     @NotEmpty(message = "Address cannot be null or empty!")
     private String postalCode;
+    @NotEmpty(message = "Role cannot be null or empty!")
+    private String role;
 
-    public AddUserToDto(String id, String username, String password, String name, String email, String telephoneNo,
-                        String gender, Date dateOfBirth, String street, String streetNumber, String city, String postalCode) {
+    public AddUserDto(String id, String username, String password, String name, String email, String telephoneNo,
+                      String gender, Date dateOfBirth, String street, String streetNumber, String city, String postalCode, String role) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -51,5 +53,6 @@ public class AddUserToDto {
         this.streetNumber = streetNumber;
         this.city = city;
         this.postalCode = postalCode;
+        this.role=role;
     }
 }
