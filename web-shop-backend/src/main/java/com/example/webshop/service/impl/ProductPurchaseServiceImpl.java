@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,13 +28,25 @@ public class ProductPurchaseServiceImpl implements ProductPurchaseService {
 
     @Override
     public ProductPurchase addProductPurchase(ProductPurchase purchase) {
+
         if(!userRepository.findById(purchase.getUserId()).isPresent())
             return null;
         if(!productRepository.findById(purchase.getProductId()).isPresent())
             return null;
 
+        purchase.setIsPaid(false);
         purchase.setId(UUID.randomUUID().toString());
+        purchase.setPayPalOrderId("");
         repository.save(purchase);
         return purchase;
+    }
+
+    @Override
+    public Boolean markAsPayed(String id) {
+        ProductPurchase purchase = repository.findProductPurchaseByPayPalOrderId(id);
+        purchase.setIsPaid(true);
+        repository.save(purchase);
+
+        return null;
     }
 }

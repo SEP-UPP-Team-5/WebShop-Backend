@@ -1,20 +1,29 @@
 package com.example.webshop.controller;
 
+import com.example.webshop.dto.CreatePaymentResponseDTO;
 import com.example.webshop.dto.ProductDto;
+import com.example.webshop.dto.ProductPurchaseConfirmationDto;
 import com.example.webshop.dto.ProductPurchaseDto;
 import com.example.webshop.dto.mapper.PurchaseMapper;
 import com.example.webshop.model.Product;
 import com.example.webshop.model.ProductPurchase;
+import com.example.webshop.repository.ProductPurchaseRepository;
 import com.example.webshop.service.ProductPurchaseService;
 import com.example.webshop.service.ProductService;
+import com.netflix.discovery.converters.Auto;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +37,18 @@ public class PurchaseController {
 
     @Autowired
     private ProductPurchaseService purchaseService;
+
+    @LoadBalanced
+    @Bean
+    public RestTemplate getRestTemplate() {
+        return new RestTemplate();
+    }
+
+    @Autowired
+    private LoadBalancerClient loadBalancerClient;
+
+    @Autowired
+    private ProductPurchaseRepository repository;
 
     @Value("${spring.application.name}")
     private String applicationName;
@@ -83,8 +104,13 @@ public class PurchaseController {
 
         //String token = accessToken();
 
-        String paypalUrl = "https://paypal-service/orders";
-        RestTemplate restTemplate = new RestTemplate();
+        //String paypalUrl = "http://localhost:8082/orders/create";
+                //"https://paypal-service/orders/create";
+
+        ServiceInstance serviceInstance = loadBalancerClient.choose("paypal-service");
+        //String uri = "https://host.docker.internal/orders/create";
+        URI url = serviceInstance.getUri();
+        System.out.println(url);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         //TODO: headers.setBearerAuth(token);
@@ -93,18 +119,32 @@ public class PurchaseController {
             obj.put("applicationName", applicationName);
             obj.put("price", saved.getCurrentPrice());
             obj.put("purchaseId", saved.getId());
-            obj.put("payPalId", "");    //TODO seller credentials
+            obj.put("merchantId", "BAGSGQXCCH7WU");    //TODO seller credentials
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         HttpEntity<String> request = new HttpEntity<>(obj.toString(), headers);
-        Product productResponse = restTemplate.postForObject(paypalUrl, request, Product.class);    //TODO response class
-        System.out.println(productResponse);
+
+        CreatePaymentResponseDTO payPalResponse = getRestTemplate().postForObject(url + "/orders/create", request, CreatePaymentResponseDTO.class);   //TODO response class
+        System.out.println("CreatePaymentResponseDTO");
+        System.out.println(payPalResponse);
+        saved.setPayPalOrderId(payPalResponse.getPayPalOrderId());
+        repository.save(saved);
 
         /* END OF CONTACT */
         //TODO response link for redirect
         return new ResponseEntity<>("Added purchase with id " + saved.getId(), HttpStatus.OK);
+    }
+
+    @PostMapping("/confirm")
+    public String paymentConfirmation(@RequestBody ProductPurchaseConfirmationDto dto){
+        System.out.println(dto.getPurchaseId());
+
+        purchaseService.markAsPayed(dto.getPurchaseId());
+
+        return "paid";
+
     }
 
     private static boolean isNullOrEmpty(String... strArr){
