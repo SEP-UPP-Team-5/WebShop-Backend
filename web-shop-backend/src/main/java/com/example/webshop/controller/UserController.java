@@ -26,7 +26,6 @@ public class UserController {
     private JwtTokenUtil jwtTokenUtil;
     final private UserMapper userMapper = new UserMapper();
 
-    @CrossOrigin
     @GetMapping
     public List<UserDto> getUsers(){
         List<UserDto> userDtoList = new ArrayList<>();
@@ -34,7 +33,6 @@ public class UserController {
             userDtoList.add(userMapper.UserToUserDto(user));
         return userDtoList;
     }
-    @CrossOrigin
     @PostMapping
     public ResponseEntity<String> saveUser(@RequestBody AddUserDto userDto){
         if(isNullOrEmpty(userDto.getUsername(), userDto.getPassword(), userDto.getName(), userDto.getEmail(), userDto.getTelephoneNo(), userDto.getGender(), userDto.getDateOfBirth().toString(),
@@ -49,8 +47,6 @@ public class UserController {
 
         return new ResponseEntity<>("Added user with id " + userService.addUser(user).getId(), HttpStatus.OK);
     }
-
-    @CrossOrigin
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserAuthDto dto) throws  NoSuchAlgorithmException{
         User user = userService.findByUsername(dto.getUsername());
@@ -65,7 +61,7 @@ public class UserController {
             }
         }
     }
-    @CrossOrigin
+
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getOne(@PathVariable String id){
         Optional<User> user = userService.findById(id);
@@ -75,14 +71,11 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
-    @CrossOrigin
     @GetMapping("/username/{username}")
     public UserDto getOneByUsername(@PathVariable String username){
         return userMapper.UserToUserDto(userService.findByUsername(username));
     }
 
-    @CrossOrigin
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable String id){
         Optional<User> user = userService.findById(id);
@@ -92,7 +85,6 @@ public class UserController {
         return new ResponseEntity<>("User deleted with id " + id, HttpStatus.OK);
     }
 
-    @CrossOrigin
     @PutMapping(value="/pass/{id}")
     public ResponseEntity<Void> changePassword(
             @PathVariable String id,
