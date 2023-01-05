@@ -141,19 +141,19 @@ public class PurchaseController {
         return new ResponseEntity<>("Added purchase with id " + saved.getId(), HttpStatus.OK);
     }
 
-    @PostMapping("/cart/{userId}")
-    public ResponseEntity<String> addEmptyCart(@PathVariable String userId) {
-        if (isNullOrEmpty(userId))
-            return new ResponseEntity<>("User id cannot be empty!", HttpStatus.BAD_REQUEST);
-        if (cartService.findByUserId(userId).isPresent())
-            return new ResponseEntity<>("Cart for user already exists!", HttpStatus.BAD_REQUEST);
-
-        Cart saved = cartService.addCart(new Cart(userId));
-        if (saved == null)
-            return new ResponseEntity<>("User does not exist!", HttpStatus.BAD_REQUEST);
-
-        return new ResponseEntity<>("Added cart for user with id " + saved.getUserId(), HttpStatus.OK);
-    }
+//    @PostMapping("/cart/{userId}")
+//    public ResponseEntity<String> addEmptyCart(@PathVariable String userId) {
+//        if (isNullOrEmpty(userId))
+//            return new ResponseEntity<>("User id cannot be empty!", HttpStatus.BAD_REQUEST);
+//        if (cartService.findByUserId(userId).isPresent())
+//            return new ResponseEntity<>("Cart for user already exists!", HttpStatus.BAD_REQUEST);
+//
+//        Cart saved = cartService.addCart(new Cart(userId));
+//        if (saved == null)
+//            return new ResponseEntity<>("User does not exist!", HttpStatus.BAD_REQUEST);
+//
+//        return new ResponseEntity<>("Added cart for user with id " + saved.getUserId(), HttpStatus.OK);
+//    }
 
     @PostMapping("/items/{userId}")
     public ResponseEntity<String> addItemToCart(@RequestBody CartItem item, @PathVariable String userId) {
@@ -161,7 +161,7 @@ public class PurchaseController {
             return new ResponseEntity<>("None of fields cannot be empty!", HttpStatus.BAD_REQUEST);
         Cart saved = cartService.addItemToCart(item, userId);
         if (saved == null)
-            return new ResponseEntity<>("Cart or user does not exist!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("User or product does not exist!", HttpStatus.BAD_REQUEST);
 
         return new ResponseEntity<>("Added item with product id " + item.getProductId(), HttpStatus.OK);
     }

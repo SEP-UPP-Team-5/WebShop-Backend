@@ -2,13 +2,16 @@ package com.example.webshop.service.impl;
 
 import com.example.webshop.model.Cart;
 import com.example.webshop.model.CartItem;
+import com.example.webshop.model.Product;
 import com.example.webshop.model.User;
 import com.example.webshop.repository.CartRepository;
+import com.example.webshop.repository.ProductRepository;
 import com.example.webshop.repository.UserRepository;
 import com.example.webshop.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,6 +21,10 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private UserRepository userRepository;
     @Override
     public Optional<Cart> findByUserId(String userId) {
         return cartRepository.findByUserId(userId);
@@ -48,13 +55,27 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart addItemToCart(CartItem item, String userId) {
-        Optional<Cart> cart = findByUserId(userId);
-        if(!cart.isPresent())
+        Optional<Product> product = productRepository.findById(item.getProductId());
+        if(!product.isPresent())
             return null;
-        List<CartItem> items = cart.get().getItems();
+        Optional<User> user = userRepository.findById(userId);
+        if(!user.isPresent())
+            return null;
+
+        Optional<Cart> cart = findByUserId(userId);
+
+        if(cart.isPresent()){
+            List<CartItem> items = cart.get().getItems();
+            items.add(item);
+            cart.get().setItems(items);
+            return cartRepository.save(cart.get());
+        }
+
+        Cart newCart = new Cart(userId);
+        List<CartItem> items = new ArrayList<CartItem>();
         items.add(item);
-        cart.get().setItems(items);
-        return cartRepository.save(cart.get());
+        newCart.setItems(items);
+        return addCart(newCart);
     }
 
     @Override
