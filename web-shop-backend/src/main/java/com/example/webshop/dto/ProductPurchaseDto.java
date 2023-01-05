@@ -19,4 +19,8 @@ public class ProductPurchaseDto {
     private String productId;
     @NotEmpty(message = "Price cannot be null or empty!")
     private Double currentPrice;
+    @NotEmpty
+    private Boolean isPaid;
+    @NotEmpty
+    private String payPalOrderId;
 }

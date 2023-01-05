@@ -19,4 +19,8 @@ public class ProductPurchase {
     private String userId;
     private String productId;
     private Double currentPrice;
+    private Boolean isPaid;
+    private String payPalOrderId;
+
+
 }

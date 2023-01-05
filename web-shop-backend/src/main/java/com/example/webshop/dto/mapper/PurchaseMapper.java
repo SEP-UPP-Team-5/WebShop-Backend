@@ -14,9 +14,9 @@ public class PurchaseMapper {
     }
 
     public ProductPurchaseDto ProductPurchaseToProductPurchaseDto(ProductPurchase purchase) {
-        return new ProductPurchaseDto(purchase.getId(),purchase.getUserId(), purchase.getProductId(), purchase.getCurrentPrice());
+        return new ProductPurchaseDto(purchase.getId(),purchase.getUserId(), purchase.getProductId(), purchase.getCurrentPrice(), purchase.getIsPaid(), purchase.getPayPalOrderId());
     }
     public ProductPurchase AddProductPurchaseDtoToProductPurchase(ProductPurchaseDto dto){
-        return new ProductPurchase(dto.getId(),dto.getUserId(), dto.getProductId(), dto.getCurrentPrice());
+        return new ProductPurchase(dto.getId(),dto.getUserId(), dto.getProductId(), dto.getCurrentPrice(), dto.getIsPaid(), dto.getPayPalOrderId());
     }
 }
