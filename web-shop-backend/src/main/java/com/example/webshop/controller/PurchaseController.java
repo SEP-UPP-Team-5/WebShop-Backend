@@ -1,15 +1,13 @@
 package com.example.webshop.controller;
 
-import com.example.webshop.dto.CreatePaymentResponseDTO;
-import com.example.webshop.dto.ProductDto;
-import com.example.webshop.dto.ProductPurchaseConfirmationDto;
-import com.example.webshop.dto.ProductPurchaseDto;
+import com.example.webshop.dto.*;
 import com.example.webshop.dto.mapper.PurchaseMapper;
 import com.example.webshop.model.*;
 import com.example.webshop.service.CartService;
 import com.example.webshop.model.Product;
 import com.example.webshop.model.ProductPurchase;
 import com.example.webshop.repository.ProductPurchaseRepository;
+import com.example.webshop.service.OrderService;
 import com.example.webshop.service.ProductPurchaseService;
 import com.example.webshop.service.ProductService;
 import org.codehaus.jettison.json.JSONException;
@@ -37,10 +35,10 @@ public class PurchaseController {
     private ProductService productService;
 
     @Autowired
-    private ProductPurchaseService purchaseService;
+    private CartService cartService;
 
     @Autowired
-    private CartService cartService;
+    private OrderService orderService;
 
     @LoadBalanced
     @Bean
@@ -50,9 +48,6 @@ public class PurchaseController {
 
     @Autowired
     private LoadBalancerClient loadBalancerClient;
-
-    @Autowired
-    private ProductPurchaseRepository repository;
 
     @Value("${spring.application.name}")
     private String applicationName;
@@ -86,79 +81,63 @@ public class PurchaseController {
         return new ResponseEntity<>("Added product with id " + productService.addProduct(product).getId(), HttpStatus.OK);
     }
 
-    @GetMapping("/{userId}")
-    public List<ProductPurchaseDto> getPurchasesByUserId(@PathVariable String userId) {
-        List<ProductPurchaseDto> dtoList = new ArrayList<>();
-        for (ProductPurchase purchase : purchaseService.getAllByUserId(userId))
-            dtoList.add(purchaseMapper.ProductPurchaseToProductPurchaseDto(purchase));
-        return dtoList;
-    }
 
-    @PostMapping("/addNew")
-    public ResponseEntity<String> buyProduct(@RequestBody ProductPurchaseDto dto) {
-        if (isNullOrEmpty(dto.getUserId(), dto.getProductId(), dto.getCurrentPrice().toString()))
-            return new ResponseEntity<>("None of fields cannot be empty!", HttpStatus.BAD_REQUEST);
-
-        ProductPurchase productPurchase = purchaseMapper.AddProductPurchaseDtoToProductPurchase(dto);
-        ProductPurchase saved = purchaseService.addProductPurchase(productPurchase);
-        if (saved == null)
-            return new ResponseEntity<>("User or product does not exist!", HttpStatus.BAD_REQUEST);
-
-        /* CONTACT WITH PAYPAL*/
-
-        //String token = accessToken();
-
-        //String paypalUrl = "http://localhost:8082/orders/create";
-        //"https://paypal-service/orders/create";
-
-        ServiceInstance serviceInstance = loadBalancerClient.choose("paypal-service");
-        //String uri = "https://host.docker.internal/orders/create";
-        URI url = serviceInstance.getUri();
-        System.out.println(url);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        //TODO: headers.setBearerAuth(token);
-        JSONObject obj = new JSONObject();
-        try {
-            obj.put("applicationName", applicationName);
-            obj.put("price", saved.getCurrentPrice());
-            obj.put("purchaseId", saved.getId());
-            obj.put("merchantId", "BAGSGQXCCH7WU");    //TODO seller credentials
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        HttpEntity<String> request = new HttpEntity<>(obj.toString(), headers);
-
-//        CreatePaymentResponseDTO payPalResponse = getRestTemplate().postForObject(url + "/orders/create", request, CreatePaymentResponseDTO.class);   //TODO response class
-//        System.out.println("CreatePaymentResponseDTO");
-//        System.out.println(payPalResponse);
-//        saved.setPayPalOrderId(payPalResponse.getPayPalOrderId());
-        repository.save(saved);
-
-        /* END OF CONTACT */
-        //TODO response link for redirect
-        return new ResponseEntity<>("Added purchase with id " + saved.getId(), HttpStatus.OK);
-    }
+//    @PostMapping("/addNew")
+//    public ResponseEntity<String> buyProduct(@RequestBody ProductPurchaseDto dto) {
+//        if (isNullOrEmpty(dto.getUserId(), dto.getProductId(), dto.getCurrentPrice().toString()))
+//            return new ResponseEntity<>("None of fields cannot be empty!", HttpStatus.BAD_REQUEST);
+//
+//        ProductPurchase productPurchase = purchaseMapper.AddProductPurchaseDtoToProductPurchase(dto);
+//        ProductPurchase saved = purchaseService.addProductPurchase(productPurchase);
+//        if (saved == null)
+//            return new ResponseEntity<>("User or product does not exist!", HttpStatus.BAD_REQUEST);
+//
+//        /* CONTACT WITH PAYPAL*/
+//
+//        //String token = accessToken();
+//
+//        //String paypalUrl = "http://localhost:8082/orders/create";
+//        //"https://paypal-service/orders/create";
+//
+//        ServiceInstance serviceInstance = loadBalancerClient.choose("paypal-service");
+//        //String uri = "https://host.docker.internal/orders/create";
+//        URI url = serviceInstance.getUri();
+//        System.out.println(url);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//        //TODO: headers.setBearerAuth(token);
+//        JSONObject obj = new JSONObject();
+//        try {
+//            obj.put("applicationName", applicationName);
+//            obj.put("price", saved.getCurrentPrice());
+//            obj.put("purchaseId", saved.getId());
+//            obj.put("merchantId", "BAGSGQXCCH7WU");    //TODO seller credentials
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        HttpEntity<String> request = new HttpEntity<>(obj.toString(), headers);
+//
+////        CreatePaymentResponseDTO payPalResponse = getRestTemplate().postForObject(url + "/orders/create", request, CreatePaymentResponseDTO.class);   //TODO response class
+////        System.out.println("CreatePaymentResponseDTO");
+////        System.out.println(payPalResponse);
+////        saved.setPayPalOrderId(payPalResponse.getPayPalOrderId());
+//        repository.save(saved);
+//
+//        /* END OF CONTACT */
+//        //TODO response link for redirect
+//        return new ResponseEntity<>("Added purchase with id " + saved.getId(), HttpStatus.OK);
+//    }
 
     @PostMapping("/items/{userId}")
     public ResponseEntity<String> addItemToCart(@RequestBody CartItem item, @PathVariable String userId) {
-        if (isNullOrEmpty(item.getQuantity().toString(), item.getProductId()))
+        if (isNullOrEmpty(item.getProductId()))
             return new ResponseEntity<>("None of fields cannot be empty!", HttpStatus.BAD_REQUEST);
         Cart saved = cartService.addItemToCart(item, userId);
         if (saved == null)
             return new ResponseEntity<>("User or product does not exist!", HttpStatus.BAD_REQUEST);
 
         return new ResponseEntity<>("Added item with product id " + item.getProductId(), HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<String> deleteCart(@PathVariable String userId) {
-        Optional<Cart> cart = cartService.findByUserId(userId);
-        if (!cart.isPresent())
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        cartService.deleteById(cart.get().getId());
-        return new ResponseEntity<>("Cart deleted for user with id " + userId, HttpStatus.OK);
     }
 
     @PutMapping("/cart/{userId}")
@@ -170,15 +149,30 @@ public class PurchaseController {
         cartService.updateCart(cart.get());
         return new ResponseEntity<>("Cart updated for user with id " + userId, HttpStatus.OK);
     }
-    @PostMapping("/confirm")
-    public String paymentConfirmation (@RequestBody ProductPurchaseConfirmationDto dto){
-        System.out.println(dto.getPurchaseId());
 
-        purchaseService.markAsPayed(dto.getPurchaseId());
+    @PostMapping("/order")
+    public ResponseEntity<String> saveOrder(@RequestBody OrderDto dto) {
+        if (isNullOrEmpty(dto.getCart().getId(),dto.getCart().getUserId(), dto.getTotalPrice().toString()) || dto.getCart().getItems().isEmpty())
+            return new ResponseEntity<>("None of fields cannot be empty!", HttpStatus.BAD_REQUEST);
 
-        return "paid";
+        Order order = purchaseMapper.OrderDtoToOrder(dto);
+        Order saved = orderService.addOrder(order, dto.getCart().getId());
 
+        if(saved == null)
+            return new ResponseEntity<>("User does not exist!", HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>("Added order with id " + saved.getId(), HttpStatus.OK);
     }
+
+//    @PostMapping("/confirm")
+//    public String paymentConfirmation (@RequestBody ProductPurchaseConfirmationDto dto){
+//        System.out.println(dto.getPurchaseId());
+//
+//        purchaseService.markAsPayed(dto.getPurchaseId());
+//
+//        return "paid";
+//
+//    }
 
     private static boolean isNullOrEmpty (String...strArr){
         for (String st : strArr) {
