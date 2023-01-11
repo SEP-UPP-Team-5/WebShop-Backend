@@ -3,27 +3,20 @@ package com.example.webshop.controller;
 import com.example.webshop.dto.*;
 import com.example.webshop.dto.mapper.PurchaseMapper;
 import com.example.webshop.model.*;
-import com.example.webshop.service.CartService;
+import com.example.webshop.service.*;
 import com.example.webshop.model.Product;
-import com.example.webshop.model.ProductPurchase;
-import com.example.webshop.repository.ProductPurchaseRepository;
-import com.example.webshop.service.OrderService;
-import com.example.webshop.service.ProductPurchaseService;
-import com.example.webshop.service.ProductService;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-
-import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,14 +33,14 @@ public class PurchaseController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private SubscriptionService subscriptionService;
+
     @LoadBalanced
     @Bean
     public RestTemplate getRestTemplate() {
         return new RestTemplate();
     }
-
-    @Autowired
-    private LoadBalancerClient loadBalancerClient;
 
     @Value("${spring.application.name}")
     private String applicationName;
@@ -161,6 +154,26 @@ public class PurchaseController {
         if(saved == null)
             return new ResponseEntity<>("User does not exist!", HttpStatus.BAD_REQUEST);
 
+        Subscription subscription = subscriptionService.findOne("1");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        //TODO: headers.setBearerAuth(token);
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("amount", saved.getTotalPrice());
+            obj.put("webShopOrderId", saved.getId());
+            obj.put("apiKey", subscription.getApiKey());
+            obj.put("date", new Date().toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        HttpEntity<String> request = new HttpEntity<>(obj.toString(), headers);
+
+        String pspResponse = getRestTemplate().postForObject(subscription.getUrl() + "/paymentInfo/create", request, String.class);   //TODO response class
+        System.out.println("poslato");
+        System.out.println(pspResponse);
+
         return new ResponseEntity<>("Added order with id " + saved.getId(), HttpStatus.OK);
     }
 
@@ -173,6 +186,11 @@ public class PurchaseController {
 //        return "paid";
 //
 //    }
+    @PostMapping(path = "/createSubscription")
+    private ResponseEntity<?> newSubscription(@RequestBody Subscription subscription){
+       subscriptionService.newSubscription(subscription);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     private static boolean isNullOrEmpty (String...strArr){
         for (String st : strArr) {

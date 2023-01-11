@@ -15,9 +15,10 @@ import javax.validation.constraints.NotEmpty;
 public class OrderDto {
 
     private String id;
-    @NotEmpty
+   // @NotEmpty
     private Cart cart;
     @NotEmpty
     private Double totalPrice;
+    private Boolean isPaid;
 
 }

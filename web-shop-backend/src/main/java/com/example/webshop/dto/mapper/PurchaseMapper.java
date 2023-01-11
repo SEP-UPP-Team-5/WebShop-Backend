@@ -31,6 +31,6 @@ public class PurchaseMapper {
         for (CartItem item : dto.getCart().getItems()) {
             ids.add(item.getProductId());
         }
-        return new Order(dto.getId(), dto.getCart().getUserId(), ids, dto.getTotalPrice());
+        return new Order(dto.getId(), dto.getCart().getUserId(), ids, dto.getTotalPrice(), dto.getIsPaid());
     }
 }
