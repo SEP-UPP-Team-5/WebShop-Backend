@@ -164,6 +164,16 @@ public class PurchaseController {
         return new ResponseEntity<>("Added order with id " + saved.getId(), HttpStatus.OK);
     }
 
+    @GetMapping("/cart/{userId}")
+    public ResponseEntity<Cart> getCartByUserId(@PathVariable String userId) {
+        Optional<Cart> cart = cartService.findByUserId(userId);
+        if (cart.isPresent()) {
+            return new ResponseEntity<>(cart.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 //    @PostMapping("/confirm")
 //    public String paymentConfirmation (@RequestBody ProductPurchaseConfirmationDto dto){
 //        System.out.println(dto.getPurchaseId());
