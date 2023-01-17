@@ -10,7 +10,6 @@ import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -163,7 +162,7 @@ public class PurchaseController {
             obj.put("amount", saved.getTotalPrice());
             obj.put("webShopOrderId", saved.getId());
             obj.put("apiKey", subscription.getApiKey());
-            obj.put("date", new Date().toString());
+            obj.put("creatingOrderTime", new Date().toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
