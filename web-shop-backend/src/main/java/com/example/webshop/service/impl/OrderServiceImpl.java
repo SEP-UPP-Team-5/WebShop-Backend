@@ -1,6 +1,7 @@
 package com.example.webshop.service.impl;
 
 import com.example.webshop.model.Order;
+import com.example.webshop.model.ProductPurchase;
 import com.example.webshop.repository.CartRepository;
 import com.example.webshop.repository.OrderRepository;
 import com.example.webshop.repository.UserRepository;
@@ -29,5 +30,13 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         cartRepository.deleteById(cartId);
         return order;
+    }
+
+    @Override
+    public Boolean markAsPayed(String id) {
+        Order order = orderRepository.findById(id).get();
+        order.setIsPaid(true);
+        orderRepository.save(order);
+        return null;
     }
 }

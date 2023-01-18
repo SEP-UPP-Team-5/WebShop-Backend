@@ -73,54 +73,6 @@ public class PurchaseController {
         return new ResponseEntity<>("Added product with id " + productService.addProduct(product).getId(), HttpStatus.OK);
     }
 
-
-//    @PostMapping("/addNew")
-//    public ResponseEntity<String> buyProduct(@RequestBody ProductPurchaseDto dto) {
-//        if (isNullOrEmpty(dto.getUserId(), dto.getProductId(), dto.getCurrentPrice().toString()))
-//            return new ResponseEntity<>("None of fields cannot be empty!", HttpStatus.BAD_REQUEST);
-//
-//        ProductPurchase productPurchase = purchaseMapper.AddProductPurchaseDtoToProductPurchase(dto);
-//        ProductPurchase saved = purchaseService.addProductPurchase(productPurchase);
-//        if (saved == null)
-//            return new ResponseEntity<>("User or product does not exist!", HttpStatus.BAD_REQUEST);
-//
-//        /* CONTACT WITH PAYPAL*/
-//
-//        //String token = accessToken();
-//
-//        //String paypalUrl = "http://localhost:8082/orders/create";
-//        //"https://paypal-service/orders/create";
-//
-//        ServiceInstance serviceInstance = loadBalancerClient.choose("paypal-service");
-//        //String uri = "https://host.docker.internal/orders/create";
-//        URI url = serviceInstance.getUri();
-//        System.out.println(url);
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//        //TODO: headers.setBearerAuth(token);
-//        JSONObject obj = new JSONObject();
-//        try {
-//            obj.put("applicationName", applicationName);
-//            obj.put("price", saved.getCurrentPrice());
-//            obj.put("purchaseId", saved.getId());
-//            obj.put("merchantId", "BAGSGQXCCH7WU");    //TODO seller credentials
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//        HttpEntity<String> request = new HttpEntity<>(obj.toString(), headers);
-//
-////        CreatePaymentResponseDTO payPalResponse = getRestTemplate().postForObject(url + "/orders/create", request, CreatePaymentResponseDTO.class);   //TODO response class
-////        System.out.println("CreatePaymentResponseDTO");
-////        System.out.println(payPalResponse);
-////        saved.setPayPalOrderId(payPalResponse.getPayPalOrderId());
-//        repository.save(saved);
-//
-//        /* END OF CONTACT */
-//        //TODO response link for redirect
-//        return new ResponseEntity<>("Added purchase with id " + saved.getId(), HttpStatus.OK);
-//    }
-
     @PostMapping("/items/{userId}")
     public ResponseEntity<String> addItemToCart(@RequestBody CartItem item, @PathVariable String userId) {
         if (isNullOrEmpty(item.getProductId()))
@@ -170,26 +122,26 @@ public class PurchaseController {
         HttpEntity<String> request = new HttpEntity<>(obj.toString(), headers);
 
         String pspResponse = getRestTemplate().postForObject(subscription.getUrl() + "/paymentInfo/create", request, String.class);   //TODO response class
-        System.out.println("poslato");
+        System.out.println("sent");
         System.out.println(pspResponse);
 
         return new ResponseEntity<>("Added order with id " + saved.getId(), HttpStatus.OK);
     }
+    @PostMapping("/confirm/{webShopOrderId}")
+    public String paymentConfirmation (@PathVariable String webShopOrderId){
+        System.out.println(webShopOrderId);
+        orderService.markAsPayed(webShopOrderId);
 
-//    @PostMapping("/confirm")
-//    public String paymentConfirmation (@RequestBody ProductPurchaseConfirmationDto dto){
-//        System.out.println(dto.getPurchaseId());
-//
-//        purchaseService.markAsPayed(dto.getPurchaseId());
-//
-//        return "paid";
-//
-//    }
+        return "paid";
+
+    }
+
     @PostMapping(path = "/createSubscription")
     private ResponseEntity<?> newSubscription(@RequestBody Subscription subscription){
        subscriptionService.newSubscription(subscription);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 
     private static boolean isNullOrEmpty (String...strArr){
         for (String st : strArr) {
