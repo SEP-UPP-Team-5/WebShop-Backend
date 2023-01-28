@@ -9,7 +9,6 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +34,6 @@ public class PurchaseController {
     @Autowired
     private SubscriptionService subscriptionService;
 
-    @LoadBalanced
     @Bean
     public RestTemplate getRestTemplate() {
         return new RestTemplate();
@@ -120,10 +118,10 @@ public class PurchaseController {
         }
 
         HttpEntity<String> request = new HttpEntity<>(obj.toString(), headers);
-
+        System.out.println(request);
         String pspResponse = getRestTemplate().postForObject(subscription.getUrl() + "/paymentInfo/create", request, String.class);   //TODO response class
         System.out.println("sent");
-        System.out.println(pspResponse);
+        System.out.println(pspResponse); // response je url na kojem se nalazi stranica na frontu na koju cemo redirect korisnika
 
         return new ResponseEntity<>("Added order with id " + saved.getId(), HttpStatus.OK);
     }
