@@ -18,9 +18,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin
 @RestController
+@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 @RequestMapping("/purchase")
+
 public class PurchaseController {
     @Autowired
     private ProductService productService;
@@ -62,7 +63,7 @@ public class PurchaseController {
         }
     }
 
-    @PostMapping("/products/addNew")
+    @PostMapping(path="/products/addNew", produces = "application/json")
     public ResponseEntity<String> saveProduct(@RequestBody ProductDto dto) {
         if (isNullOrEmpty(dto.getName(), dto.getDescription(), dto.getPrice().toString()))
             return new ResponseEntity<>("None of fields cannot be empty!", HttpStatus.BAD_REQUEST);
@@ -71,7 +72,7 @@ public class PurchaseController {
         return new ResponseEntity<>("Added product with id " + productService.addProduct(product).getId(), HttpStatus.OK);
     }
 
-    @PostMapping("/items/{userId}")
+    @PostMapping(path="/items/{userId}", produces = "application/json")
     public ResponseEntity<String> addItemToCart(@RequestBody CartItem item, @PathVariable String userId) {
         if (isNullOrEmpty(item.getProductId()))
             return new ResponseEntity<>("None of fields cannot be empty!", HttpStatus.BAD_REQUEST);
