@@ -80,7 +80,12 @@
 			<artifactId>jettison</artifactId>
 			<version>1.5.2</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.owasp</groupId>
+			<artifactId>dependency-check-maven</artifactId>
+			<version>5.2.4</version>
+			<type>maven-plugin</type>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
@@ -91,6 +96,18 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>5.2.4</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

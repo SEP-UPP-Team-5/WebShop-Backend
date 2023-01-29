@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import java.util.Date;
 
 @Getter
@@ -14,30 +15,39 @@ import java.util.Date;
 public class AddUserDto {
 
     private String id;
+
     @NotEmpty(message = "Username cannot be null or empty!")
+    @Pattern(regexp = "^[a-zA-Z0-9_.]$",
+            message = "Username must contain only letters, numbers, dot and underscore.")
     private String username;
-    @NotEmpty(message = "Password cannot be null or empty!")
-    private String password;
     @NotEmpty(message = "Name cannot be null or empty!")
+    @Pattern(regexp = "^[a-zA-Z]$",
+            message = "Name must contain only letters.")
     private String name;
     @Email(message = "Email should be valid!")
     private String email;
     @NotEmpty(message = "Telephone number cannot be null or empty!")
+    @Pattern(regexp = "^[0-9]$",
+            message = "Telephone number must contain only numbers.")
     private String telephoneNo;
-    @NotEmpty(message = "Gender cannot be null or empty!")
+
     private String gender;
     @NotEmpty(message = "Date of birth cannot be null or empty!")
     private Date dateOfBirth;
-    @NotEmpty(message = "Address cannot be null or empty!")
+
     private String street;
-    @NotEmpty(message = "Address cannot be null or empty!")
     private String streetNumber;
-    @NotEmpty(message = "Address cannot be null or empty!")
     private String city;
-    @NotEmpty(message = "Address cannot be null or empty!")
     private String postalCode;
+
     @NotEmpty(message = "Role cannot be null or empty!")
     private String role;
+
+    @NotEmpty(message = "Password cannot be null or empty!")
+    @Pattern(regexp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$",
+            message = "Password must contain minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character.")
+    private String password;
+
 
     public AddUserDto(String id, String username, String password, String name, String email, String telephoneNo,
                       String gender, Date dateOfBirth, String street, String streetNumber, String city, String postalCode, String role) {

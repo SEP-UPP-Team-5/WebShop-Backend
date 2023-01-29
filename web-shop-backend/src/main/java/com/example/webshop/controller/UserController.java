@@ -35,8 +35,7 @@ public class UserController {
     }
     @PostMapping
     public ResponseEntity<String> saveUser(@RequestBody AddUserDto userDto){
-        if(isNullOrEmpty(userDto.getUsername(), userDto.getPassword(), userDto.getName(), userDto.getEmail(), userDto.getTelephoneNo(), userDto.getGender(), userDto.getDateOfBirth().toString(),
-                userDto.getStreet(), userDto.getStreetNumber(), userDto.getCity(), userDto.getPostalCode()))
+        if(isNullOrEmpty(userDto.getUsername(), userDto.getPassword(), userDto.getName(), userDto.getEmail(), userDto.getTelephoneNo(), userDto.getDateOfBirth().toString()))
             return new ResponseEntity<>("None of fields cannot be empty!", HttpStatus.BAD_REQUEST);
         if(userService.usernameExists(userDto.getUsername()))
             return new ResponseEntity<>("Username already exists!", HttpStatus.BAD_REQUEST);
