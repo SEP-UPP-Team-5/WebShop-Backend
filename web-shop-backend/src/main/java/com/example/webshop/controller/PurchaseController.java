@@ -53,6 +53,16 @@ public class PurchaseController {
         return dtoList;
     }
 
+    @GetMapping("/cart/{userId}")
+    public ResponseEntity<Cart> getCartByUserId(@PathVariable String userId) {
+        Optional<Cart> cart = cartService.findByUserId(userId);
+        if (cart.isPresent()) {
+            return new ResponseEntity<>(cart.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/products/{id}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable String id) {
         Optional<Product> product = productService.findById(id);
@@ -124,7 +134,7 @@ public class PurchaseController {
         System.out.println("sent");
         System.out.println(pspResponse); // response je url na kojem se nalazi stranica na frontu na koju cemo redirect korisnika
 
-        return new ResponseEntity<>("Added order with id " + saved.getId(), HttpStatus.OK);
+        return new ResponseEntity<>( pspResponse, HttpStatus.OK);
     }
     @PostMapping("/confirm/{webShopOrderId}")
     public String paymentConfirmation (@PathVariable String webShopOrderId){
