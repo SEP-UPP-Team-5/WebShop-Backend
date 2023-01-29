@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -128,7 +130,7 @@ public class PurchaseController {
             obj.put("amount", saved.getTotalPrice());
             obj.put("webShopOrderId", saved.getId());
             obj.put("apiKey", subscription.getApiKey());
-            obj.put("creatingOrderTime", new Date().toString());
+            obj.put("webShopTimestamp", LocalDateTime.now());
         } catch (JSONException e) {
             e.printStackTrace();
         }
