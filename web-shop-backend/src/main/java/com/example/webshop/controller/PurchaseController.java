@@ -103,6 +103,11 @@ public class PurchaseController {
         return new ResponseEntity<>("Cart updated for user with id " + userId, HttpStatus.OK);
     }
 
+    @GetMapping("/order/{id}")
+    public  ResponseEntity<?> getOrderById(@PathVariable String id) {
+        return new ResponseEntity<>(orderService.findOne(id), HttpStatus.OK);
+    }
+
     @PostMapping("/order")
     public ResponseEntity<String> saveOrder(@RequestBody OrderDto dto) {
         if (isNullOrEmpty(dto.getCart().getId(),dto.getCart().getUserId(), dto.getTotalPrice().toString()) || dto.getCart().getItems().isEmpty())

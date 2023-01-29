@@ -37,4 +37,11 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         return null;
     }
+
+    @Override
+    public Order findOne(String orderId) {
+        return orderRepository.findById(orderId).get();
+    }
+
+
 }
