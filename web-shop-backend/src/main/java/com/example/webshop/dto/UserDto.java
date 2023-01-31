@@ -3,9 +3,11 @@ package com.example.webshop.dto;
 import com.example.webshop.model.Product;
 import lombok.Getter;
 import lombok.Setter;
+import org.intellij.lang.annotations.RegExp;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import java.util.Date;
 import java.util.List;
 
@@ -16,25 +18,27 @@ public class UserDto {
     private String id;
 
     @NotEmpty(message = "Username cannot be null or empty!")
+    @Pattern(regexp = "^[a-zA-Z0-9_.]$",
+            message = "Username must contain only letters, numbers, dot and underscore.")
     private String username;
     @NotEmpty(message = "Name cannot be null or empty!")
+    @Pattern(regexp = "^[a-zA-Z]$",
+            message = "Name must contain only letters.")
     private String name;
     @Email(message = "Email should be valid!")
     private String email;
     @NotEmpty(message = "Telephone number cannot be null or empty!")
+    @Pattern(regexp = "^[0-9]$",
+            message = "Telephone number must contain only numbers.")
     private String telephoneNo;
-    @NotEmpty(message = "Gender cannot be null or empty!")
+
     private String gender;
     @NotEmpty(message = "Date of birth cannot be null or empty!")
     private Date dateOfBirth;
 
-    @NotEmpty(message = "Address cannot be null or empty!")
     private String street;
-    @NotEmpty(message = "Address cannot be null or empty!")
     private String streetNumber;
-    @NotEmpty(message = "Address cannot be null or empty!")
     private String city;
-    @NotEmpty(message = "Address cannot be null or empty!")
     private String postalCode;
 
     @NotEmpty(message = "Role cannot be null or empty!")
