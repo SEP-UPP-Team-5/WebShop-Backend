@@ -8,6 +8,10 @@ import com.example.webshop.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,7 +37,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Boolean markAsPayed(String id) {
         Order order = orderRepository.findById(id).get();
+
         order.setIsPaid(true);
+        order.setPaymentTime(new Date());
         orderRepository.save(order);
         return null;
     }
@@ -41,6 +47,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order findOne(String orderId) {
         return orderRepository.findById(orderId).get();
+    }
+
+    @Override
+    public List<Order> getPaidOrdersByUserId(String id) {
+        return orderRepository.findByUserIdAndIsPaid(id, true);
     }
 
 

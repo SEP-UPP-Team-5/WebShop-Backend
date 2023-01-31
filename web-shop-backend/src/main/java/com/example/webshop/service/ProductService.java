@@ -10,4 +10,5 @@ public interface ProductService {
     Product addProduct(Product product);
     Optional<Product> findById(String id);
 
+    List<Product> getMyProducts(String id);
 }

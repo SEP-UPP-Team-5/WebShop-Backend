@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -21,4 +22,5 @@ public class Order {
     private List<String> productIds;
     private Double totalPrice;
     private Boolean isPaid;
+    private Date paymentTime;
 }
