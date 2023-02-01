@@ -37,10 +37,10 @@ public class PurchaseController {
     @Autowired
     private SubscriptionService subscriptionService;
 
-    @Bean
-    public RestTemplate getRestTemplate() {
-        return new RestTemplate();
-    }
+//    @Bean
+//    public RestTemplate getRestTemplate() {
+//        return new RestTemplate();
+//    }
 
     @Value("${spring.application.name}")
     private String applicationName;
@@ -137,7 +137,8 @@ public class PurchaseController {
 
         HttpEntity<String> request = new HttpEntity<>(obj.toString(), headers);
         System.out.println(request);
-        String pspResponse = getRestTemplate().postForObject(subscription.getUrl() + "/paymentInfo/create", request, String.class);   //TODO response class
+        RestTemplate restTemplate = new RestTemplate();
+        String pspResponse = restTemplate.postForObject(subscription.getUrl() + "/paymentInfo/create", request, String.class);   //TODO response class
         System.out.println("sent");
         System.out.println(pspResponse); // response je url na kojem se nalazi stranica na frontu na koju cemo redirect korisnika
 
@@ -158,6 +159,21 @@ public class PurchaseController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("/history/{userId}")
+    public List<TransactionHistoryDto> getTransactionHistory(@PathVariable String userId){
+        List<TransactionHistoryDto> dtoList = new ArrayList<>();
+        for(Order order : orderService.getPaidOrdersByUserId(userId))
+            dtoList.add(purchaseMapper.OrderToTransactionDto(order, productService));
+        return dtoList;
+    }
+
+    @GetMapping("/myProducts/{userId}")
+    public List<ProductDto> getMyProducts(@PathVariable String userId){
+        List<ProductDto> dtoList = new ArrayList<>();
+        for(Product product : productService.getMyProducts(userId))
+            dtoList.add(purchaseMapper.ProductToProductDto(product));
+        return dtoList;
+    }
 
     private static boolean isNullOrEmpty (String...strArr){
         for (String st : strArr) {

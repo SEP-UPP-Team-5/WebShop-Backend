@@ -27,7 +27,6 @@ public class User {
     private Gender gender;
     private Date dateOfBirth;
     private Address address;
-
     private Role role;
 
     public User(String id, String username, String name, String email, String telephoneNo,
