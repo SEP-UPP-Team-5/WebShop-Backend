@@ -37,10 +37,9 @@ public class PurchaseController {
     @Autowired
     private SubscriptionService subscriptionService;
 
-//    @Bean
-//    public RestTemplate getRestTemplate() {
-//        return new RestTemplate();
-//    }
+    @Autowired
+    private RestTemplate restTemplate;
+
 
     @Value("${spring.application.name}")
     private String applicationName;
@@ -124,7 +123,6 @@ public class PurchaseController {
         Subscription subscription = subscriptionService.findOne("1");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        //TODO: headers.setBearerAuth(token);
         JSONObject obj = new JSONObject();
         try {
             obj.put("amount", saved.getTotalPrice());
@@ -137,10 +135,9 @@ public class PurchaseController {
 
         HttpEntity<String> request = new HttpEntity<>(obj.toString(), headers);
         System.out.println(request);
-        RestTemplate restTemplate = new RestTemplate();
         String pspResponse = restTemplate.postForObject(subscription.getUrl() + "/paymentInfo/create", request, String.class);   //TODO response class
         System.out.println("sent");
-        System.out.println(pspResponse); // response je url na kojem se nalazi stranica na frontu na koju cemo redirect korisnika
+        System.out.println(pspResponse);
 
         return new ResponseEntity<>( pspResponse, HttpStatus.OK);
     }
